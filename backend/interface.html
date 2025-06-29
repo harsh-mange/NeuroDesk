@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroDesk - Brain Dump & Task Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A90E2 0%, #7BB3F0 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 15px;
+            background: #f8f9fa;
+            border-left: 5px solid #4A90E2;
+        }
+
+        .section h2 {
+            color: #4A90E2;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4A90E2;
+        }
+
+        button {
+            background: linear-gradient(135deg, #4A90E2 0%, #7BB3F0 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .task-card {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 4px solid #4A90E2;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .energy-high { border-left-color: #E57373; }
+        .energy-medium { border-left-color: #FFB74D; }
+        .energy-low { border-left-color: #81C784; }
+
+        .emotion-result {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .emotion-primary {
+            font-weight: 600;
+            color: #4A90E2;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .example-text {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 NeuroDesk</h1>
+            <p>AI-Powered Brain Dump & Task Management</p>
+        </div>
+
+        <div class="content">
+            <!-- Brain Dump Section -->
+            <div class="section">
+                <h2>💭 Brain Dump to Tasks</h2>
+                <p>Type your scattered thoughts and we'll convert them into organized tasks with energy levels.</p>
+                
+                <div class="example-text">
+                    <strong>Example:</strong><br>
+                    "Need to finish project report, feeling stressed about meeting tomorrow, want to start learning guitar, should call mom this week"
+                </div>
+
+                <div class="input-group">
+                    <label for="brainDumpText">Your Thoughts:</label>
+                    <textarea id="brainDumpText" placeholder="Type your thoughts here..."></textarea>
+                </div>
+
+                <button onclick="processBrainDump()" id="brainDumpBtn">Generate Tasks</button>
+
+                <div id="brainDumpResults" class="results" style="display: none;">
+                    <h3>Generated Tasks:</h3>
+                    <div id="tasksList"></div>
+                    
+                    <h3>Emotion Analysis:</h3>
+                    <div id="emotionAnalysis"></div>
+                </div>
+            </div>
+
+            <!-- Emotion Detection Section -->
+            <div class="section">
+                <h2>😊 Emotion Detection</h2>
+                <p>Analyze the emotional content of your text.</p>
+
+                <div class="input-group">
+                    <label for="emotionText">Text to Analyze:</label>
+                    <textarea id="emotionText" placeholder="Enter text to analyze emotions..."></textarea>
+                </div>
+
+                <button onclick="detectEmotion()" id="emotionBtn">Detect Emotions</button>
+
+                <div id="emotionResults" class="results" style="display: none;">
+                    <h3>Emotion Analysis Results:</h3>
+                    <div id="emotionDetails"></div>
+                </div>
+            </div>
+
+            <!-- Daily Summary Section -->
+            <div class="section">
+                <h2>📊 Daily Summary</h2>
+                <p>Generate insights and recommendations for your day.</p>
+
+                <button onclick="generateSummary()" id="summaryBtn">Generate Summary</button>
+
+                <div id="summaryResults" class="results" style="display: none;">
+                    <h3>Daily Summary:</h3>
+                    <div id="summaryDetails"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        async function processBrainDump() {
+            const text = document.getElementById('brainDumpText').value.trim();
+            if (!text) {
+                alert('Please enter some text first!');
+                return;
+            }
+
+            const btn = document.getElementById('brainDumpBtn');
+            const results = document.getElementById('brainDumpResults');
+            
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            results.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/brain-dump`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                displayTasks(data.tasks);
+                displayEmotion(data.emotion_reading);
+                
+                results.style.display = 'block';
+                
+            } catch (error) {
+                showError('Brain Dump', error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate Tasks';
+            }
+        }
+
+        async function detectEmotion() {
+            const text = document.getElementById('emotionText').value.trim();
+            if (!text) {
+                alert('Please enter some text first!');
+                return;
+            }
+
+            const btn = document.getElementById('emotionBtn');
+            const results = document.getElementById('emotionResults');
+            
+            btn.disabled = true;
+            btn.textContent = 'Analyzing...';
+            results.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/detect-emotion`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                displayEmotionDetails(data);
+                results.style.display = 'block';
+                
+            } catch (error) {
+                showError('Emotion Detection', error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Detect Emotions';
+            }
+        }
+
+        async function generateSummary() {
+            const btn = document.getElementById('summaryBtn');
+            const results = document.getElementById('summaryResults');
+            
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            results.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/generate-summary`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id: 'user_1' })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                displaySummary(data);
+                results.style.display = 'block';
+                
+            } catch (error) {
+                showError('Summary Generation', error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate Summary';
+            }
+        }
+
+        function displayTasks(tasks) {
+            const container = document.getElementById('tasksList');
+            container.innerHTML = '';
+
+            tasks.forEach(task => {
+                const taskCard = document.createElement('div');
+                taskCard.className = `task-card energy-${task.energy}`;
+                
+                taskCard.innerHTML = `
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-meta">
+                        <span>Energy: ${task.energy}</span>
+                        <span>Category: ${task.category}</span>
+                        <span>Status: ${task.status}</span>
+                        ${task.is_avoidance ? '<span style="color: #E57373;">⚠️ Avoidance</span>' : ''}
+                    </div>
+                `;
+                
+                container.appendChild(taskCard);
+            });
+        }
+
+        function displayEmotion(emotion) {
+            const container = document.getElementById('emotionAnalysis');
+            container.innerHTML = `
+                <div class="emotion-result">
+                    <div class="emotion-primary">Primary Emotion: ${emotion.primary_emotion}</div>
+                    <div>Confidence: ${(emotion.confidence * 100).toFixed(1)}%</div>
+                    <div>Overwhelm Score: ${(emotion.overwhelm_score * 100).toFixed(1)}%</div>
+                    ${emotion.is_overwhelm_detected ? '<div style="color: #E57373; font-weight: 600;">⚠️ Overwhelm Detected</div>' : ''}
+                </div>
+            `;
+        }
+
+        function displayEmotionDetails(emotion) {
+            const container = document.getElementById('emotionDetails');
+            container.innerHTML = `
+                <div class="emotion-result">
+                    <div class="emotion-primary">Primary Emotion: ${emotion.primary_emotion}</div>
+                    <div>Confidence: ${(emotion.confidence * 100).toFixed(1)}%</div>
+                    <div>Overwhelm Score: ${(emotion.overwhelm_score * 100).toFixed(1)}%</div>
+                    ${emotion.is_overwhelm_detected ? '<div style="color: #E57373; font-weight: 600;">⚠️ Overwhelm Detected</div>' : ''}
+                    <div style="margin-top: 10px;">
+                        <strong>All Emotions:</strong><br>
+                        ${Object.entries(emotion.emotion_scores).map(([emotion, score]) => 
+                            `${emotion}: ${(score * 100).toFixed(1)}%`
+                        ).join(', ')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function displaySummary(summary) {
+            const container = document.getElementById('summaryDetails');
+            container.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <strong>Summary:</strong><br>
+                    ${summary.summary_text}
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong>Insights:</strong><br>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        ${summary.insights.map(insight => `<li>${insight}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong>Recommendations:</strong><br>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        ${summary.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div style="display: flex; gap: 20px;">
+                    <div><strong>Mood Score:</strong> ${(summary.mood_score * 100).toFixed(0)}%</div>
+                    <div><strong>Productivity Score:</strong> ${(summary.productivity_score * 100).toFixed(0)}%</div>
+                </div>
+            `;
+        }
+
+        function showError(feature, message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.innerHTML = `<strong>${feature} Error:</strong> ${message}`;
+            
+            // Remove any existing error messages
+            document.querySelectorAll('.error').forEach(el => el.remove());
+            
+            // Add the new error message
+            document.querySelector('.content').insertBefore(errorDiv, document.querySelector('.content').firstChild);
+            
+            // Remove error after 5 seconds
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        // Add some example text on page load
+        window.onload = function() {
+            document.getElementById('brainDumpText').value = 
+                "Need to finish project report\nFeeling stressed about meeting tomorrow\nWant to start learning guitar\nShould call mom this week";
+            
+            document.getElementById('emotionText').value = 
+                "I'm feeling overwhelmed with work and stressed about the upcoming deadline. I need to take a break and exercise more.";
+        };
+    </script>
+</body>
+</html> 
