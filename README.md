@@ -1,3 +1,10 @@
+# NeuroDesk
+
+![CI](https://github.com/harsh-mange/NeuroDesk/actions/workflows/main.yml/badge.svg)
+![License](https://img.shields.io/github/license/harsh-mange/NeuroDesk)
+![Last Commit](https://img.shields.io/github/last-commit/harsh-mange/NeuroDesk)
+![Issues](https://img.shields.io/github/issues/harsh-mange/NeuroDesk)
+
 # NeuroDesk - AI-Powered Productivity & Mental Wellness App
 
 A Flutter-based application that combines productivity tools with mental wellness features using AI to help users manage tasks, emotions, and prevent burnout.
